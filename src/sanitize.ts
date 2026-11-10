@@ -1,6 +1,7 @@
 import {
   CURRENCY_MAX, LEVEL_MAX, REBIRTHS_MAX, PLAY_SECONDS_MAX, CUSTOM_SPEED_MAX, BOOST_UNTIL_MAX, DAILY_STREAK_MAX,
   OWNED_MAX, PETS_MAX, PET_EQUIP_MAX, PET_UID_MAX, ID_PATTERN, SPINS_MAX, SPIN_TIMER_MAX, PET_SLOTS_MAX, PET_STORAGE_MAX,
+  WORLDS_MAX,
 } from "./constants.js";
 import type { PlayerDoc, SavedPet } from "./db.js";
 
@@ -86,6 +87,18 @@ export function sanitizeProgress(raw: unknown): Partial<PlayerDoc> | null {
   if (isId(raw.bike) && (!out.ownedBikes || out.ownedBikes.includes(raw.bike))) out.bike = raw.bike;
   if (isId(raw.trail)) out.trail = raw.trail;
   if (raw.ownedTrails !== undefined) out.ownedTrails = sanitizeIds(raw.ownedTrails);
+
+  // Worlds: the unlocked list (always includes the lobby "w1"), the current one (must be unlocked
+  // when the list comes along), and each world chest's last-claim time.
+  if (raw.worlds !== undefined) out.worlds = [...new Set(["w1", ...sanitizeIds(raw.worlds, WORLDS_MAX)])].slice(0, WORLDS_MAX);
+  if (isId(raw.world) && (!out.worlds || out.worlds.includes(raw.world))) out.world = raw.world;
+  if (isObject(raw.worldChests)) {
+    const chests: Record<string, number> = {};
+    for (const [k, v] of Object.entries(raw.worldChests).slice(0, WORLDS_MAX)) {
+      if (isId(k) && finite(v)) chests[k] = clampNum(v, BOOST_UNTIL_MAX);
+    }
+    out.worldChests = chests;
+  }
 
   if (raw.pets !== undefined) out.pets = sanitizePets(raw.pets);
   if (raw.equippedPets !== undefined) {
