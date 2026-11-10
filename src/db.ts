@@ -36,6 +36,9 @@ export interface PlayerDoc {
   played?: number; // s played
   boulderStop?: number; // unix s
   introSeen?: boolean; // watched (or skipped) the new-player intro cutscene
+  world?: string; // the world the player is in (client WORLDS id: "w1" | "w2" | "w3")
+  worlds?: string[]; // worlds unlocked for good
+  worldChests?: Record<string, number>; // unix s of each world hub chest's last claim
   lastSeen?: number; // epoch ms of the last activity
   version: number;
   updatedAt: Date;

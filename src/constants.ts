@@ -39,6 +39,8 @@ export const SPIN_TIMER_MAX = 7 * 24 * 3600; // s until the next free spin (conf
 export const PETS_MAX = 1000;
 export const PET_EQUIP_MAX = 50;
 export const PET_UID_MAX = 1e9;
+// Worlds (client WORLDS: w1 lobby, w2 jungle, w3 volcano): unlocked list and per-world chest timers.
+export const WORLDS_MAX = 16;
 
 // Leaderboards (leaderboard.ts; client zones.js boards): the saved doc fields ranked, rows per
 // board and how often the lists are re-read and re-sent.

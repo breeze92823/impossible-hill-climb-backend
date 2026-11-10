@@ -39,6 +39,16 @@ describe("sanitizeProgress", () => {
     assert.ok(!("introSeen" in sanitizeProgress({ introSeen: "yes" })!));
   });
 
+  it("keeps the worlds: w1 always unlocked, the current one only if unlocked, bounded chest times", () => {
+    const out = sanitizeProgress({ worlds: ["w2", "w2", "Bad Id!", 3], world: "w2", worldChests: { w2: 1700000000, w3: "x", "Bad Id!": 5, w4: 1e20 } })!;
+    assert.deepStrictEqual(out.worlds, ["w1", "w2"]);
+    assert.strictEqual(out.world, "w2");
+    assert.deepStrictEqual(out.worldChests, { w2: 1700000000, w4: 1e13 });
+    assert.strictEqual(sanitizeProgress({ worlds: ["w1"], world: "w3" })!.world, undefined);
+    assert.strictEqual(sanitizeProgress({ world: "w3" })!.world, "w3");
+    assert.ok(!("worldChests" in sanitizeProgress({ worldChests: [1] })!));
+  });
+
   it("bounds boosts and the daily streak", () => {
     const out = sanitizeProgress({ boosts: { speed: 1e12, wins: -4 }, daily: { streak: 2.9, last: "x" }, customSpeed: 99999 })!;
     assert.deepStrictEqual(out.boosts, { speed: 1e12, wins: 0 });
